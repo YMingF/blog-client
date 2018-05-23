@@ -1,6 +1,6 @@
 <template>
   <div id="create">
-    创建博客
+     <p>创建博客</p>
   </div>
 </template>
 
