@@ -11,7 +11,7 @@ import My from '@/pages/My/template.vue'
 
 Vue.use(Router)
 
-export default new Router({
+const router=new Router({
   routes: [
     {
       path: '/',
@@ -22,28 +22,52 @@ export default new Router({
       component: Login
     },
     {
-      path: '/detail',
+      path: '/register',
+      component: Register
+    },
+    {
+      path: '/detail/:blogId',
       component: Detail
     },
     {
-      path: '/edit',
-      component: Edit
+      path: '/edit/:blogId',
+      component: Edit,
+      meta: { requiresAuth: true }
     },
     {
       path: '/create',
-      component: Create
+      component: Create,
+      meta: { requiresAuth: true }
     },
     {
-      path: '/user',
+      path: '/user/:userId',
       component: User
     },
     {
       path: '/my',
-      component: My
-    },
-    {
-      path: '/register',
-      component: Register
+      component: My,
+      meta: { requiresAuth: true }
     }
   ]
 })
+
+//每次路由切换都会去执行这个函数
+router.beforeEach((to, from, next) => {
+  if (to.matched.some(record => record.meta.requiresAuth)) {
+    store.dispatch('checkLogin').then(isLogin=>{
+      if (!isLogin) {//如果它没有登录,就跳转到登录页面
+        next({
+          path: '/login',
+          query: { redirect: to.fullPath }
+        })
+      } else {
+        next()
+      }
+    })
+
+  } else {
+    next() // 确保一定要调用 next()
+  }
+})
+
+export  default router
